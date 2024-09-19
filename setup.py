@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="trivy-to-google-sheets",  # Replace with your package name
-    version="0.1.0",
+    version="0.3.0",
     author="Quique Ruiz",
     author_email="joseenriqueruiznavarro@gmail.com",
     description="A tool to run Trivy scans and export results to Google Sheets",

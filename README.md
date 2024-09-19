@@ -23,7 +23,8 @@ pip install trivy-to-google-sheets
 Before running the script or using the CLI tool, ensure the following environment variables are set:
 
 - `GOOGLE_SHEETS_CREDS`: Path to your Google service account credentials JSON file.
-- `WORKSHEET_NAME`: (Optional) Name of the Google Sheet worksheet (tab) where the data will be inserted.
+- `WORKSHEET_NAME`: (Optional) Name of the Google Sheet worksheet (tab) where the data will be inserted. Default - `default-trivy-name`
+- `SPREADSHEET_NAME`: (Optional) Name of the Google Sheet - Default -`trivy-vulnerabilities-spreadsheet`
 - `SHARE_EMAILS`: Comma-separated list of emails to share the Google Sheet with.
   
 #### Example

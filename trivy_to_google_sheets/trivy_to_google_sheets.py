@@ -8,8 +8,8 @@ class TrivyToGoogleSheets:
     def __init__(self, image_name):
         self.image_name = image_name
         self.creds_path = os.getenv('GOOGLE_SHEETS_CREDS')
-        self.spreadsheet_name = os.getenv('SPREADSHEET_NAME', 'vulnerabilities-spreadsheet')  # New variable for spreadsheet name
-        self.worksheet_name = os.getenv('WORKSHEET_NAME', 'default-tab-name')  # Worksheet/tab name
+        self.spreadsheet_name = os.getenv('SPREADSHEET_NAME', 'trivy-vulnerabilities-spreadsheet')  
+        self.worksheet_name = os.getenv('WORKSHEET_NAME', 'default-trivy-name') 
         self.share_emails = os.getenv('SHARE_EMAILS')
         
         if not self.creds_path or not self.share_emails:
