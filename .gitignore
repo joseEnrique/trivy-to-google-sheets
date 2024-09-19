@@ -1,0 +1,41 @@
+# Ignore virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore log files and temporary files
+*.log
+*.tmp
+
+# Ignore service account JSON files (sensitive credentials)
+*.json
+
+# Ignore distribution / packaging files
+build/
+dist/
+*.egg-info/
+
+# Ignore IDE and editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore coverage reports
+.coverage
+*.cover
+*.coverage.*
+*.py,cover
+
+# Ignore pytest cache
+.cache/
