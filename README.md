@@ -53,5 +53,6 @@ After installing the package, you can use the `trivy-to-google-sheets` command d
 
 ```bash
 trivy-to-google-sheets your-container-image
-
 ```
+
+## Google Setup
