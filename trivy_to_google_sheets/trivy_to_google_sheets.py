@@ -8,11 +8,12 @@ class TrivyToGoogleSheets:
     def __init__(self, image_name):
         self.image_name = image_name
         self.creds_path = os.getenv('GOOGLE_SHEETS_CREDS')
-        self.worksheet_name = os.getenv('WORKSHEET_NAME', 'default-tab-name')
+        self.spreadsheet_name = os.getenv('SPREADSHEET_NAME', 'vulnerabilities-spreadsheet')  # New variable for spreadsheet name
+        self.worksheet_name = os.getenv('WORKSHEET_NAME', 'default-tab-name')  # Worksheet/tab name
         self.share_emails = os.getenv('SHARE_EMAILS')
         
         if not self.creds_path or not self.share_emails:
-            raise EnvironmentError("GOOGLE_SHEETS_CREDS and SHARE_EMAILS environment variables must be set.")
+            raise EnvironmentError("GOOGLE_SHEETS_CREDS, SPREADSHEET_NAME, and SHARE_EMAILS environment variables must be set.")
         
         self.email_list = [email.strip() for email in self.share_emails.split(",")]
 
@@ -37,15 +38,15 @@ class TrivyToGoogleSheets:
 
         # Try to open the spreadsheet, create if it doesn't exist
         try:
-            spreadsheet = client.open(self.worksheet_name)
+            spreadsheet = client.open(self.spreadsheet_name)  # Use the environment variable for spreadsheet name
         except gspread.SpreadsheetNotFound:
-            print(f"Spreadsheet '{self.worksheet_name}' not found. Creating a new one.")
+            print(f"Spreadsheet '{self.spreadsheet_name}' not found. Creating a new one.")
             spreadsheet_id = self.create_spreadsheet()
             spreadsheet = client.open_by_key(spreadsheet_id)
             self.share_spreadsheet(spreadsheet_id)
 
         try:
-            sheet = spreadsheet.worksheet(self.worksheet_name)
+            sheet = spreadsheet.worksheet(self.worksheet_name)  # Use the environment variable for worksheet/tab name
         except gspread.WorksheetNotFound:
             sheet = spreadsheet.add_worksheet(title=self.worksheet_name, rows="100", cols="20")
 
@@ -74,7 +75,7 @@ class TrivyToGoogleSheets:
         service = build('sheets', 'v4', credentials=self.creds)
         spreadsheet = {
             'properties': {
-                'title': self.worksheet_name
+                'title': self.spreadsheet_name  # Use the environment variable for the spreadsheet name
             }
         }
         spreadsheet = service.spreadsheets().create(body=spreadsheet, fields='spreadsheetId').execute()
