@@ -3,19 +3,21 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from datetime import datetime  # Import datetime to add current date
 
 class TrivyToGoogleSheets:
     def __init__(self, image_name):
         self.image_name = image_name
         self.creds_path = os.getenv('GOOGLE_SHEETS_CREDS')
-        self.spreadsheet_name = os.getenv('SPREADSHEET_NAME', 'trivy-vulnerabilities-spreadsheet')  
-        self.worksheet_name = os.getenv('WORKSHEET_NAME', 'default-trivy-name') 
-        self.share_emails = os.getenv('SHARE_EMAILS')
+        self.spreadsheet_name = os.getenv('SPREADSHEET_NAME', 'trivy-vulnerabilities')  # Spreadsheet name
+        self.worksheet_name = os.getenv('WORKSHEET_NAME', 'default-tab-name')  # Worksheet/tab name
+        self.share_emails = os.getenv('SHARE_EMAILS')  # Optional
+
+        if not self.creds_path or not self.spreadsheet_name or not self.worksheet_name:
+            raise EnvironmentError("GOOGLE_SHEETS_CREDS, SPREADSHEET_NAME, and WORKSHEET_NAME environment variables must be set.")
         
-        if not self.creds_path or not self.share_emails:
-            raise EnvironmentError("GOOGLE_SHEETS_CREDS, SPREADSHEET_NAME, and SHARE_EMAILS environment variables must be set.")
-        
-        self.email_list = [email.strip() for email in self.share_emails.split(",")]
+        if self.share_emails:
+            self.email_list = [email.strip() for email in self.share_emails.split(",")]
 
         self.scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
         self.creds = ServiceAccountCredentials.from_json_keyfile_name(self.creds_path, self.scope)
@@ -43,15 +45,18 @@ class TrivyToGoogleSheets:
             print(f"Spreadsheet '{self.spreadsheet_name}' not found. Creating a new one.")
             spreadsheet_id = self.create_spreadsheet()
             spreadsheet = client.open_by_key(spreadsheet_id)
-            self.share_spreadsheet(spreadsheet_id)
+            if self.share_emails:
+                self.share_spreadsheet(spreadsheet_id)
 
         try:
             sheet = spreadsheet.worksheet(self.worksheet_name)  # Use the environment variable for worksheet/tab name
         except gspread.WorksheetNotFound:
             sheet = spreadsheet.add_worksheet(title=self.worksheet_name, rows="100", cols="20")
 
-        # Prepare data
-        headers = ["Target", "Vulnerability ID", "Pkg Name", "Installed Version", "Fixed Version", "Severity", "Description"]
+        # Prepare data with date
+        headers = ["Target", "Vulnerability ID", "Pkg Name", "Installed Version", "Fixed Version", "Severity", "Description", "Date"]  # Add "Date" header
+        current_date = datetime.now().strftime("%Y-%m-%d")  # Get the current date
+
         rows = [headers] + [
             [
                 vuln.get("Target", ""),
@@ -60,7 +65,8 @@ class TrivyToGoogleSheets:
                 vuln.get("InstalledVersion", ""),
                 vuln.get("FixedVersion", "N/A"),
                 vuln.get("Severity", ""),
-                vuln.get("Description", "")
+                vuln.get("Description", ""),
+                current_date  # Add the current date to each row
             ] for result in data.get('Results', []) for vuln in result.get('Vulnerabilities', [])
         ]
 
@@ -69,7 +75,7 @@ class TrivyToGoogleSheets:
         for row in rows:
             sheet.append_row(row)
 
-        print(f"Data successfully pushed to Google Sheets!")
+        print(f"Data successfully pushed to Google Sheets with the current date!")
 
     def create_spreadsheet(self):
         service = build('sheets', 'v4', credentials=self.creds)
@@ -82,14 +88,18 @@ class TrivyToGoogleSheets:
         return spreadsheet.get('spreadsheetId')
 
     def share_spreadsheet(self, spreadsheet_id):
-        drive_service = build('drive', 'v3', credentials=self.creds)
-        for email in self.email_list:
-            permission = {
-                'type': 'user',
-                'role': 'writer',
-                'emailAddress': email
-            }
-            drive_service.permissions().create(fileId=spreadsheet_id, body=permission, fields='id').execute()
+        if self.share_emails:
+            drive_service = build('drive', 'v3', credentials=self.creds)
+            for email in self.email_list:
+                permission = {
+                    'type': 'user',
+                    'role': 'writer',
+                    'emailAddress': email
+                }
+                drive_service.permissions().create(fileId=spreadsheet_id, body=permission, fields='id').execute()
+            print(f"Spreadsheet shared with: {', '.join(self.email_list)}")
+        else:
+            print("No emails provided to share the spreadsheet.")
 
     def run(self):
         trivy_data = self.run_trivy()
