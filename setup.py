@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="trivy-to-google-sheets",  # Replace with your package name
+    name="trivy-to-google-sheets",
     version="0.3.0",
     author="Quique Ruiz",
     author_email="joseenriqueruiznavarro@gmail.com",
     description="A tool to run Trivy scans and export results to Google Sheets",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/joseEnrique/trivy-to-google-sheets",  # Replace with your GitHub URL
+    url="https://github.com/joseEnrique/trivy-to-google-sheets", 
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
