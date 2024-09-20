@@ -97,7 +97,7 @@ export GOOGLE_SHEETS_CREDS=/path/to/your/service-account-key.json
 ```
 
 
-### Share Spreadsheet with Multiple Emails
+### Share Spreadsheet with Multiple Emails (Optional)
 
 If your script needs to share the Google Sheets with multiple people, you can set the `SHARE_EMAILS` environment variable with a comma-separated list of emails:
 
